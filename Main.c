@@ -136,15 +136,47 @@ void *deplacerVoiture(void *arg) {
         pthread_mutex_lock(params->mutex);
         
         if (params->direction == 'H') {
+         
             params->grille[params->x][params->y] = '-';
-            params->y = (params->y + 1) % params->largeur;
-            params->grille[params->x][params->y] = '*';
+
+
+            params->y += 1;
+
+
+            if (params->y >= params->largeur) {
+                pthread_mutex_unlock(params->mutex);
+                return NULL;  
+            }
+
+           
+            if (params->grille[params->x][params->y] == '-' || params->grille[params->x][params->y] == '|') {
+                params->grille[params->x][params->y] = '*'; 
+            } else {
+                pthread_mutex_unlock(params->mutex);
+                return NULL;  
+            }
         } else if (params->direction == 'V') {
+         
             params->grille[params->x][params->y] = '|';
-            params->x = (params->x + 1) % params->hauteur;
-            params->grille[params->x][params->y] = '*';
-        }
+
         
+            params->x += 1;
+
+    
+            if (params->x >= params->hauteur) {
+                pthread_mutex_unlock(params->mutex);
+                return NULL;  
+            }
+
+          
+            if (params->grille[params->x][params->y] == '|') {
+                params->grille[params->x][params->y] = '*';  
+            } else {
+                pthread_mutex_unlock(params->mutex);
+                return NULL;  
+            }
+        }
+
         pthread_mutex_unlock(params->mutex);
         usleep(TEMPS_ATTENTE * 1000000);
     }
