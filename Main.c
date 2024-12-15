@@ -89,7 +89,6 @@ void *deplacerVoiture(void *arg) {
     ThreadParams *params = (ThreadParams *)arg;
     while (running) {
         pthread_mutex_lock(params->mutex_grille);
-        
 
         int next_x = params->x;
         int next_y = params->y;
@@ -100,8 +99,12 @@ void *deplacerVoiture(void *arg) {
             next_x++;
         }
 
-
         if (next_x >= params->hauteur || next_y >= params->largeur) {
+            if (params->direction == 'H') {
+                params->grille[params->x][params->y] = '-';
+            } else {
+                params->grille[params->x][params->y] = '|';
+            }
             pthread_mutex_unlock(params->mutex_grille);
             return NULL;
         }
@@ -111,7 +114,6 @@ void *deplacerVoiture(void *arg) {
             usleep(500000); 
             continue;
         }
-
 
         if (!verifierFeu(params)) {
             pthread_mutex_unlock(params->mutex_grille);
@@ -125,7 +127,11 @@ void *deplacerVoiture(void *arg) {
         params->x = next_x;
         params->y = next_y;
 
-        params->grille[old_x][old_y] = (params->direction == 'H') ? '-' : '|';
+        if (params->direction == 'H') {
+            params->grille[old_x][old_y] = '-';
+        } else {
+            params->grille[old_x][old_y] = '|';
+        }
         params->grille[params->x][params->y] = '*';
 
         pthread_mutex_unlock(params->mutex_grille);
@@ -133,6 +139,8 @@ void *deplacerVoiture(void *arg) {
     }
     return NULL;
 }
+
+
 
 
 void *gererPaireFeux(void *arg) {
